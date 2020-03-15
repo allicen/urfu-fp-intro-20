@@ -298,7 +298,7 @@ module Lecture03 where
     - not false ->> true
 -}
 not :: String
-not = "notimplemented"
+not = "\\x.x false true"
 
 {-
   Напишите терм `and`:
@@ -309,7 +309,7 @@ not = "notimplemented"
     - and false false ->> false
 -}
 and :: String
-and = "notimplemented"
+and = "\\x.\\y. x y false"
 
 {-
   Напишите терм `or`:
@@ -320,7 +320,7 @@ and = "notimplemented"
     - or false false ->> false
 -}
 or :: String
-or = "notimplemented"
+or = "\\x.\\y. x true y"
 -- </Задачи для самостоятельного решения>
 
 {-
@@ -373,7 +373,7 @@ or = "notimplemented"
   isZero n = False
 -}
 isZero :: String
-isZero = "notimplemented"
+isZero = "\\x.x(\\y.false) true"
 
 -- </Задачи для самостоятельного решения>
 
