@@ -88,24 +88,19 @@ infixr 5 :.
     - headOr 2 Nil ~> 2
 -}
 headOr :: a -> List a -> a
-headOr = \d -> \case
-  Nil -> d
-  a :. _ -> a
+headOr d Nil = d
+headOr _ (x:.xs) = x
 
 {-
   `take n` возвращает первые `n` элементов списка:
     - take 2 (1 :. 2 :. 3 :. Nil) ~> (1 :. 2 :. Nil)
     - take 50 (1 :. 2 :. 3 :. Nil) ~> (1 :. 2 :. 3 :. Nil)
     - take 0 (1 :. 2 :. 3 :. Nil) ~> Nil
-    - take (-4) (1 :. 2 :. 3 :. Nil) ~> Nil
 -}
 take :: Integer -> List a -> List a
-take = go
-  where
-    go _ Nil = Nil
-    go n (x :. xs)
-      | n <= 0 = Nil
-      | otherwise = x :. go (n - 1) xs
+take 0 n = Nil
+take n Nil = Nil
+take n (x :. xs) = x :. take (n-1) xs
 
 {-
   `length xs` возвращает длину списка `xs`:
@@ -115,9 +110,8 @@ take = go
     - length ('a' :. 'b' :. Nil) ~> 2
 -}
 length :: List a -> Integer
-length = \case
-  Nil -> 0
-  _ :. xs -> 1 + length xs
+length Nil = 0
+length (x :. xs) = 1 + length xs
 
 {-
   `sum` вычисляет сумму списка целых чисел:
@@ -127,9 +121,8 @@ length = \case
     - sum (104 :. 123 :. 35 :. Nil) ~> 262
 -}
 sum :: List Integer -> Integer
-sum = \case
-  Nil -> 0
-  a :. xs -> a + sum xs
+sum Nil = 0
+sum (x :. xs) = x + sum xs 
 
 -- </Задачи для самостоятельного решения>
 
@@ -227,9 +220,8 @@ sum = \case
             4   0
 -}
 foldr :: (a -> b -> b) -> b -> List a -> b
-foldr f b xs = case xs of
-  Nil -> b
-  x :. ys -> f x (foldr f b ys)
+foldr f b Nil = b
+foldr f b (x:.xs) = f x (foldr f b xs)
 
 {-
   `map` принимает функцию `f` и список, применяя `f` к каждому элементу:
@@ -238,10 +230,10 @@ foldr f b xs = case xs of
   - map (\x -> x + 1) Nil ~> Nil
   - map (\x -> "hi") (1 :. 2 :. 3 :. Nil) ~> ("hi" :. "hi" :. "hi" :. Nil)
 
-  Реализуйте с помощью `foldr :: (a -> b -> b) -> b -> List a -> b`.
+  Реализуйте с помощью `foldr`.
 -}
 map :: (a -> b) -> List a -> List b
-map = \f xs -> foldr (\a b -> f a :. b) Nil xs
+map f sample = foldr(\a b -> f a :. b) Nil sample
 
 {-
   `filter` принимает предикат `f` и список, возвращая список с элементами
@@ -251,10 +243,10 @@ map = \f xs -> foldr (\a b -> f a :. b) Nil xs
   - filter (\x -> x == 2) (1 :. 2 :. 3 :. Nil) ~> (2 :. Nil)
   - filter (\x -> length x == 2) ("hi" :. "hello" :. Nil) ~> ("hi" :. Nil)
 
-  Реализуйте с помощью `foldr :: (a -> b -> b) -> b -> List a -> b`.
+  Реализуйте с помощью `foldr`.
 -}
 filter :: (a -> Bool) -> List a -> List a
-filter = \f xs -> foldr (\a b -> if f a then a :. b else b) Nil xs
+filter f list = foldr(\a b -> if f a == True then a :. b else b) Nil list
 
 {-
   Правая свёртка действует на список справа, с конца.
@@ -297,20 +289,21 @@ filter = \f xs -> foldr (\a b -> if f a then a :. b else b) Nil xs
   список `xs` слева:
 -}
 foldl :: (b -> a -> b) -> b -> List a -> b
-foldl f b xs = case xs of
-  Nil -> b
-  x :. ys -> foldl f (f b x) ys
+foldl f b Nil = b
+foldl f b (x:.xs) =  f (foldl f b xs) x
 
 {-
-  `reverse` разворачивает список:
+ `reverse` разворачивает список:
     - reverse Nil ~> Nil
     - reverse (1 :. 2 :. 3 :. Nil) ~> (3 :. 2 :. 1 :. Nil)
     - reverse ('a' :. 'b' :. 'c' :. Nil) ~> ('c' :. 'b' :. 'a' :. Nil) 
 
-  Реализуйте с помощью `foldl :: (b -> a -> b) -> b -> List a -> b`.
+  Реализуйте с помощью `foldl`.
+  reverse f = foldl(\acc x -> x :. acc) Nil f
 -}
 reverse :: List a -> List a
-reverse = foldl (flip (:.)) Nil
+reverse f = foldl (\a b -> \acc -> a (b:.acc)) id f Nil
+
 
 {-
   Пришло время перейти к стандартным спискам. Напишите функцию, которая
@@ -324,15 +317,16 @@ reverse = foldl (flip (:.)) Nil
     - (:.) соответствует (:)
 -}
 toListH :: List a -> [a]
-toListH = \case
-  Nil -> []
-  x :. xs -> x : toListH xs
+toListH Nil = []
+toListH (x :. xs) = x : toListH xs
+
 
 -- И обратно
 fromListH :: [a] -> List a
-fromListH = \case
-  [] -> Nil
-  x : xs -> x :. fromListH xs
+fromListH [] = Nil
+fromListH (x : xs) = x :. fromListH xs
+
+
 
 -- </Задачи для самостоятельного решения>
 
@@ -427,7 +421,6 @@ concat ls = P.foldr (\b a -> b ++ a) [] ls
 -}
 intercalate :: [a] -> [[a]] -> [a]
 intercalate sep [] = []
-intercalate sep ls =
-  let l = last ls in P.foldr (\b a -> b ++ sep ++ a) [] (init ls) ++ l
+intercalate sep ls = P.foldr(\x acc -> x ++ sep ++ acc) [] (init ls) ++ last ls
 
 -- </Задачи для самостоятельного решения>
