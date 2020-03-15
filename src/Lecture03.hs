@@ -459,7 +459,7 @@ isZero = "\\x.x(\\y.false) true"
   Что она возвращает? Чему равен pred pred 1?
 -}
 fib :: String
-fib = "notimplemented"
+fib = "Y (\\f.\\n (iszero n) 1 (mult n (f (pred n))))"
 
 -- </Задачи для самостоятельного решения>
 
